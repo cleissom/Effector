@@ -8,6 +8,7 @@
 #include <dwt.h>
 #include "filter.h"
 #include "effect_delay.h"
+#include "effect_vibrato.h"
 //#include "math_helper.h"
 
 
@@ -29,7 +30,7 @@ int16_t AcceleroAxis[3];
 
 //Declare State buffer
 #define DELAY_STATE_SIZE 10000
-static float32_t delayState[DELAY_STATE_SIZE];
+static float32_t State[DELAY_STATE_SIZE];
 
 int main(int argc, char* argv[])
 {
@@ -104,8 +105,8 @@ int main(int argc, char* argv[])
 	outputF32 = &outputF32Buffer[0];
 
 
-	effect_instance_delay effectDelay;
-	effect_delay_init(&effectDelay, 200, 0.5, delayState, DELAY_STATE_SIZE);
+	effect_instance_vibrato effectVibrato;
+	effect_vibrato_init(&effectVibrato, 5, 1, 10,State, DELAY_STATE_SIZE);
 
 
 
@@ -129,7 +130,7 @@ int main(int argc, char* argv[])
 				}
 			}
 
-			effect_delay(&effectDelay, inputF32, outputF32, BLOCK_SIZE);
+			effect_vibrato(&effectVibrato, inputF32, outputF32, BLOCK_SIZE);
 			for(i=0, k=0; i<(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2); i++) {
 				if(i%2)	{
 					TxBuffer[i] = (int16_t)(outputF32Buffer[k]*32768);//back to 1.15
@@ -161,7 +162,7 @@ int main(int argc, char* argv[])
 				}
 			}
 
-			effect_delay(&effectDelay, inputF32, outputF32, BLOCK_SIZE);
+			effect_vibrato(&effectVibrato, inputF32, outputF32, BLOCK_SIZE);
 			for(i=(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2), k=0; i<WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE; i++) {
 				if(i%2)	{
 					TxBuffer[i] = (int16_t)(outputF32Buffer[k]*32768.0);//back to 1.15
