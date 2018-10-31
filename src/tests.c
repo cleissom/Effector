@@ -135,6 +135,7 @@ void TEST_Init()
     BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 }
 
+/*
 void TEST_Main()
 {
 	if(TestPending != TEST_NONE)
@@ -209,7 +210,7 @@ void TEST_Main()
 	}
 }
 
-
+*/
 
 
 /**

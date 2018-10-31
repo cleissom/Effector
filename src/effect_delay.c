@@ -9,18 +9,25 @@
 
 void effect_delay_init(
 	effect_instance_delay * S,
-	uint16_t delay,
+	float32_t delay,
 	float32_t alpha,
 	float32_t * pState,
 	uint16_t pStateSize)
 {
 	S->pStateSize = pStateSize;
-	S->delay = delay;
-	S->alpha = alpha;
-	S->pState = pState;
+
+	float32_t delayMax = (float32_t)((S->pStateSize-1) * 1000) / SAMPLING_FREQUENCY;
+
+	if (delay > delayMax)
+		S->delay = delayMax;
+	else
+		S->delay = delay;
 
 	S->head = 0;
-	S->tail = pStateSize - (S->delay * (SAMPLING_FREQUENCY/1000U));
+	S->aheadIndex = S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U));
+
+	S->alpha = alpha;
+	S->pState = pState;
 }
 
 void effect_delay(
@@ -32,13 +39,31 @@ void effect_delay(
 	uint16_t i;
 
 	for(i = 0; i<blockSize; i++){
-		pDst[i] = pSrc[i] + S->alpha * (S->pState[(S->tail)++]);
+		pDst[i] = pSrc[i] + S->alpha * (S->pState[(S->head + S->aheadIndex) % (S->pStateSize)]);
 		S->pState[(S->head)++] = pSrc[i];
 
 		if (S->head >= S->pStateSize)
 			S->head = 0;
-
-		if (S->tail >= S->pStateSize)
-			S->tail = 0;
 	}
+}
+
+void effect_delay_set_delay(
+		effect_instance_delay * S,
+		float32_t delay)
+{
+	float32_t delayMax = (float32_t)((S->pStateSize-1) * 1000) / SAMPLING_FREQUENCY;
+
+	if (delay > delayMax)
+		S->delay = delayMax;
+	else
+		S->delay = delay;
+
+	S->aheadIndex = S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U));
+}
+
+void effect_delay_set_alpha(
+		effect_instance_delay * S,
+		float32_t alpha)
+{
+	S->alpha = alpha;
 }

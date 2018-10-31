@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
 			buffer_offset = BUFFER_OFFSET_NONE;
 		}
-		TEST_Main();
+		//TEST_Main();
 	}
 	fclose(CycleFile);
 	return 0;
