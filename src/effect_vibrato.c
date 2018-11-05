@@ -5,14 +5,6 @@
  *      Author: Cleissom
  */
 
-
-/*
- * effect_delay.c
- *
- *  Created on: Oct 29, 2018
- *      Author: Cleissom
- */
-
 #include "effect_vibrato.h"
 
 void effect_vibrato_init(

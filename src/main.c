@@ -13,9 +13,9 @@
 
 
 #define BLOCK_SIZE (WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE)/4
-#define NUM_TAPS 502
+
 #undef CYCLE_COUNTER
-//#define CYCLE_COUNTER
+#define CYCLE_COUNTER
 
 int16_t TxBuffer[WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE];
 int16_t RxBuffer[WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE];
@@ -37,19 +37,10 @@ int main(int argc, char* argv[])
 	UNUSED(argc);
 	UNUSED(argv);
 
-	uint32_t cycleCount;
 	uint32_t i, k;
 
 	float32_t inputF32Buffer[BLOCK_SIZE];
 	float32_t outputF32Buffer[BLOCK_SIZE];
-
-
-#ifdef OS_USE_SEMIHOSTING
-	//Semihosting example
-	//FILE *CoefficientsFile;
-	FILE *CycleFile;
-	//float Coefficients[NUM_TAPS];
-#endif
 
 	// Initialise the HAL Library; it must be the first
 	// instruction to be executed in the main program.
@@ -58,30 +49,20 @@ int main(int argc, char* argv[])
 	DWT_Enable();
 
 #ifdef OS_USE_SEMIHOSTING
-	//Semihosting example
-	/*
-	CoefficientsFile = fopen("coefficients.txt", "r");
-	if (!CoefficientsFile) {
-		trace_printf("Error trying to open CoefficientsFile. Check the name/location.\n");
-		while(1);
-	}
-
-	for(i=0; i<NUM_TAPS; i++)
-		fscanf(CoefficientsFile, "%f", &Coefficients[i]);
-
-	for(i=0; i<NUM_TAPS; i++)
-		trace_printf("Coefficient %d: %f\n", i, Coefficients[i]);
-
-	fclose(CoefficientsFile);
-	*/
 #ifdef CYCLE_COUNTER
+	FILE *CycleFile;
+	uint32_t cycleCount;
 	CycleFile = fopen("cyclecounter.txt", "w");
 	if (!CycleFile) {
 		trace_printf("Error trying to open cycle counter file\n.");
 		while(1);
 	}
-#endif
 
+	// DWT_Reset();
+
+	// cycleCount = DWT_GetValue();
+
+#endif
 #endif
 
 	WOLFSON_PI_AUDIO_Init((INPUT_DEVICE_LINE_IN << 8) | OUTPUT_DEVICE_BOTH, 80, AUDIO_FREQUENCY_48K);
@@ -104,22 +85,14 @@ int main(int argc, char* argv[])
 	inputF32 = &inputF32Buffer[0];
 	outputF32 = &outputF32Buffer[0];
 
-
 	effect_instance_vibrato effectVibrato;
 	effect_vibrato_init(&effectVibrato, 5, 1, 10,State, DELAY_STATE_SIZE);
 
-
-
-	trace_printf("End of filter initialization.\n");
+	trace_printf("End of initialization.\n");
 
 	while (1) {
-		// Add your code here.
 		if(buffer_offset == BUFFER_OFFSET_HALF)
 		{
-			DWT_Reset();
-
-			cycleCount = DWT_GetValue();
-
 			for(i=0, k=0; i<(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2); i++) {
 				if(i%2) {
 					inputF32Buffer[k] = (float32_t)(RxBuffer[i]/32768.0);//convert to float LEFT
@@ -138,7 +111,6 @@ int main(int argc, char* argv[])
 				}
 			}
 
-
 #ifdef CYCLE_COUNTER
 			fprintf(CycleFile, "\nHALF: %lu", (DWT_GetValue()- cycleCount));
 #endif
@@ -149,7 +121,6 @@ int main(int argc, char* argv[])
 		if(buffer_offset == BUFFER_OFFSET_FULL)
 		{
 			DWT_Reset();
-
 			cycleCount = DWT_GetValue();
 
 			for(i=(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2), k=0; i<WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE; i++) {
@@ -179,9 +150,9 @@ int main(int argc, char* argv[])
 		}
 		//TEST_Main();
 	}
-	fclose(CycleFile);
 	return 0;
 }
+
 
 /*--------------------------------
 Callbacks implementation:
