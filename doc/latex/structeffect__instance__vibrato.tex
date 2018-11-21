@@ -1,0 +1,59 @@
+\hypertarget{structeffect__instance__vibrato}{}\section{effect\+\_\+instance\+\_\+vibrato Struct Reference}
+\label{structeffect__instance__vibrato}\index{effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+float32\+\_\+t \mbox{\hyperlink{structeffect__instance__vibrato_ae8d6f160f175cf7cb84f78916d5d84f1}{delay}}
+\item 
+float32\+\_\+t \mbox{\hyperlink{structeffect__instance__vibrato_aa94788a7cfd636b2d023ca907b509003}{alpha}}
+\item 
+float32\+\_\+t $\ast$ \mbox{\hyperlink{structeffect__instance__vibrato_aade1993dc3977af5be5cb201dd8c8ffd}{p\+State}}
+\item 
+uint16\+\_\+t \mbox{\hyperlink{structeffect__instance__vibrato_a695eb376033e80b3a5876940f81a4b86}{p\+State\+Size}}
+\item 
+\mbox{\Hypertarget{structeffect__instance__vibrato_ac211028c7fde55130286cec3c55ccf72}\label{structeffect__instance__vibrato_ac211028c7fde55130286cec3c55ccf72}} 
+uint16\+\_\+t {\bfseries head}
+\item 
+uint16\+\_\+t \mbox{\hyperlink{structeffect__instance__vibrato_a953a90099805fc2106b970a3c0ee334b}{cosine\+Index}}
+\item 
+\mbox{\Hypertarget{structeffect__instance__vibrato_a2267f007161c6c55c3f20c11534ba968}\label{structeffect__instance__vibrato_a2267f007161c6c55c3f20c11534ba968}} 
+float32\+\_\+t {\bfseries vibrato\+Digital\+Frequency}
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structeffect__instance__vibrato_aa94788a7cfd636b2d023ca907b509003}\label{structeffect__instance__vibrato_aa94788a7cfd636b2d023ca907b509003}} 
+\index{effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}!alpha@{alpha}}
+\index{alpha@{alpha}!effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}}
+\subsubsection{\texorpdfstring{alpha}{alpha}}
+{\footnotesize\ttfamily float32\+\_\+t effect\+\_\+instance\+\_\+vibrato\+::alpha}
+
+coefficient for multiplication \mbox{\Hypertarget{structeffect__instance__vibrato_a953a90099805fc2106b970a3c0ee334b}\label{structeffect__instance__vibrato_a953a90099805fc2106b970a3c0ee334b}} 
+\index{effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}!cosine\+Index@{cosine\+Index}}
+\index{cosine\+Index@{cosine\+Index}!effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}}
+\subsubsection{\texorpdfstring{cosine\+Index}{cosineIndex}}
+{\footnotesize\ttfamily uint16\+\_\+t effect\+\_\+instance\+\_\+vibrato\+::cosine\+Index}
+
+Number of indexes that the tail is, relative to head. \mbox{\Hypertarget{structeffect__instance__vibrato_ae8d6f160f175cf7cb84f78916d5d84f1}\label{structeffect__instance__vibrato_ae8d6f160f175cf7cb84f78916d5d84f1}} 
+\index{effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}!delay@{delay}}
+\index{delay@{delay}!effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}}
+\subsubsection{\texorpdfstring{delay}{delay}}
+{\footnotesize\ttfamily float32\+\_\+t effect\+\_\+instance\+\_\+vibrato\+::delay}
+
+max delay of filter in ms. \mbox{\Hypertarget{structeffect__instance__vibrato_aade1993dc3977af5be5cb201dd8c8ffd}\label{structeffect__instance__vibrato_aade1993dc3977af5be5cb201dd8c8ffd}} 
+\index{effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}!p\+State@{p\+State}}
+\index{p\+State@{p\+State}!effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}}
+\subsubsection{\texorpdfstring{p\+State}{pState}}
+{\footnotesize\ttfamily float32\+\_\+t$\ast$ effect\+\_\+instance\+\_\+vibrato\+::p\+State}
+
+points to the state variable array. The array is of length num\+Taps+block\+Size-\/1. \mbox{\Hypertarget{structeffect__instance__vibrato_a695eb376033e80b3a5876940f81a4b86}\label{structeffect__instance__vibrato_a695eb376033e80b3a5876940f81a4b86}} 
+\index{effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}!p\+State\+Size@{p\+State\+Size}}
+\index{p\+State\+Size@{p\+State\+Size}!effect\+\_\+instance\+\_\+vibrato@{effect\+\_\+instance\+\_\+vibrato}}
+\subsubsection{\texorpdfstring{p\+State\+Size}{pStateSize}}
+{\footnotesize\ttfamily uint16\+\_\+t effect\+\_\+instance\+\_\+vibrato\+::p\+State\+Size}
+
+size of p\+State. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/\+Cleissom/\+Desktop/\+Arquivos de aula/\+D\+S\+P2/\+Projeto final/\+Effector/include/effect\+\_\+vibrato.\+h\end{DoxyCompactItemize}

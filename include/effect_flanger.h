@@ -1,12 +1,12 @@
 /*
- * effect_vibrato.h
+ * effect_flanger.h
  *
- *  Created on: Oct 31, 2018
+ *  Created on: Nov 21, 2018
  *      Author: Cleissom
  */
 
-#ifndef EFFECT_VIBRATO_H_
-#define EFFECT_VIBRATO_H_
+#ifndef EFFECT_FLANGER_H_
+#define EFFECT_FLANGER_H_
 
 #include <arm_math.h>
 #include "effect_common.h"
@@ -21,12 +21,13 @@ typedef struct {
 	uint16_t pStateSize;    /**< size of pState. */
 	uint16_t head;			/**< position on state buffer. */
 	uint16_t cosineIndex;	/**< index number for digital frequency */
-	float32_t vibratoDigitalFrequency;	/**< Digital frequency of vibrato oscilation */
-} effect_instance_vibrato;
+	float32_t flangerDigitalFrequency;	/**< Digital frequency of flanger oscilation */
+} effect_instance_flanger;
 
 
 
-void effect_vibrato_init( effect_instance_vibrato * S, float32_t delay, float32_t alpha, float32_t frequency, float32_t * pState, uint16_t pStateSize);
-void effect_vibrato(effect_instance_vibrato * S, float32_t * pSrc, float32_t * pDst, uint16_t blockSize);
+void effect_flanger_init( effect_instance_flanger * S, float32_t delay, float32_t alpha, float32_t frequency, float32_t * pState, uint16_t pStateSize);
+void effect_flanger(effect_instance_flanger * S, float32_t * pSrc, float32_t * pDst, uint16_t blockSize);
 
-#endif /* EFFECT_VIBRATO_H_ */
+
+#endif /* EFFECT_FLANGER_H_ */

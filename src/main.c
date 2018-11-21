@@ -9,13 +9,19 @@
 #include "filter.h"
 #include "effect_delay.h"
 #include "effect_vibrato.h"
+#include "effect_flanger.h"
+#include "effect_tremolo.h"
+#include "effect_fuzz.h"
+#include "effect_overdrive.h"
+
+#include <string.h>
 //#include "math_helper.h"
 
 
 #define BLOCK_SIZE (WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE)/4
 
 #undef CYCLE_COUNTER
-#define CYCLE_COUNTER
+//#define CYCLE_COUNTER
 
 int16_t TxBuffer[WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE];
 int16_t RxBuffer[WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE];
@@ -85,8 +91,8 @@ int main(int argc, char* argv[])
 	inputF32 = &inputF32Buffer[0];
 	outputF32 = &outputF32Buffer[0];
 
-	effect_instance_vibrato effectVibrato;
-	effect_vibrato_init(&effectVibrato, 5, 1, 10,State, DELAY_STATE_SIZE);
+	effect_instance_flanger Effect;
+	effect_flanger_init(&Effect,11, 1, 10, State, DELAY_STATE_SIZE);
 
 	trace_printf("End of initialization.\n");
 
@@ -103,7 +109,7 @@ int main(int argc, char* argv[])
 				}
 			}
 
-			effect_vibrato(&effectVibrato, inputF32, outputF32, BLOCK_SIZE);
+			effect_flanger(&Effect, inputF32, outputF32, BLOCK_SIZE);
 			for(i=0, k=0; i<(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2); i++) {
 				if(i%2)	{
 					TxBuffer[i] = (int16_t)(outputF32Buffer[k]*32768);//back to 1.15
@@ -121,7 +127,7 @@ int main(int argc, char* argv[])
 		if(buffer_offset == BUFFER_OFFSET_FULL)
 		{
 			DWT_Reset();
-			cycleCount = DWT_GetValue();
+			//cycleCount = DWT_GetValue();
 
 			for(i=(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2), k=0; i<WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE; i++) {
 				if(i%2) {
@@ -133,7 +139,7 @@ int main(int argc, char* argv[])
 				}
 			}
 
-			effect_vibrato(&effectVibrato, inputF32, outputF32, BLOCK_SIZE);
+			effect_flanger(&Effect, inputF32, outputF32, BLOCK_SIZE);
 			for(i=(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2), k=0; i<WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE; i++) {
 				if(i%2)	{
 					TxBuffer[i] = (int16_t)(outputF32Buffer[k]*32768.0);//back to 1.15
