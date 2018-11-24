@@ -11,7 +11,7 @@
 void effect_flanger_init(
 	effect_instance_flanger * S,
 	float32_t delay,
-	float32_t alpha,
+	float32_t gain,
 	float32_t frequency,
 	float32_t * pState,
 	uint16_t pStateSize)
@@ -28,7 +28,7 @@ void effect_flanger_init(
 	S->head = 0;
 	S->cosineIndex = 0;
 
-	S->alpha = alpha;
+	S->gain = gain;
 	S->pState = pState;
 
 	S->flangerDigitalFrequency = 2 * PI * (frequency / ((float32_t)SAMPLING_FREQUENCY));
@@ -55,7 +55,7 @@ void effect_flanger(
 		x2 = (S->pState[(S->head + (aheadIndex-2)) % (S->pStateSize)]);
 		frac = ((uint32_t)aheadIndex) - aheadIndex;
 		interpolation = x1*frac + x2*(1-frac);
-		pDst[i] = (S->alpha * interpolation) + pSrc[i];
+		pDst[i] = (S->gain * interpolation) + pSrc[i];
 
 		S->pState[(S->head)++] = pSrc[i];
 
@@ -79,9 +79,9 @@ void effect_flanger_set_delay(
 		S->delay = delay;
 }
 
-void effect_flanger_set_alpha(
+void effect_flanger_set_gain(
 		effect_instance_flanger * S,
-		float32_t alpha)
+		float32_t gain)
 {
-	S->alpha = alpha;
+	S->gain = gain;
 }

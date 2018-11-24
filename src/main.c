@@ -4,7 +4,6 @@
 #include <stm32f4_discovery_accelerometer.h>
 #include <wolfson_pi_audio.h>
 #include <diag/Trace.h>
-#include <tests.h>
 #include <dwt.h>
 #include "filter.h"
 #include "effect_delay.h"
@@ -13,8 +12,9 @@
 #include "effect_tremolo.h"
 #include "effect_fuzz.h"
 #include "effect_overdrive.h"
-
 #include <string.h>
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
 //#include "math_helper.h"
 
 
@@ -22,6 +22,8 @@
 
 #undef CYCLE_COUNTER
 //#define CYCLE_COUNTER
+
+I2C_HandleTypeDef hi2c1;
 
 int16_t TxBuffer[WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE];
 int16_t RxBuffer[WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE];
@@ -33,10 +35,21 @@ __IO uint8_t Volume = 80;
 uint32_t AcceleroTicks;
 int16_t AcceleroAxis[3];
 
+GPIO_PinState encoderLastVal = GPIO_PIN_RESET;
+GPIO_PinState encoderNowVal = GPIO_PIN_RESET;
+uint32_t encoderValue = 0;
+const uint32_t encoderDebounceTime = 5; // in ms
+uint32_t encoderLastTick;
+
+char encoderValueStr[10];
+
 
 //Declare State buffer
 #define DELAY_STATE_SIZE 10000
 static float32_t State[DELAY_STATE_SIZE];
+
+void MX_I2C1_Init(void);
+void MX_GPIO_Init(void);
 
 int main(int argc, char* argv[])
 {
@@ -83,7 +96,17 @@ int main(int argc, char* argv[])
 
 	BSP_ACCELERO_Init();
 
-	TEST_Init();
+	MX_GPIO_Init();
+
+	MX_I2C1_Init();
+
+	ssd1306_Init();
+
+	//ssd1306_TestAll();
+
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED4);
+	BSP_LED_Init(LED5);
 
 	float32_t  *inputF32, *outputF32;
 
@@ -122,6 +145,15 @@ int main(int argc, char* argv[])
 #endif
 
 			buffer_offset = BUFFER_OFFSET_NONE;
+
+			effect_flanger_set_delay(&Effect, encoderValue);
+
+			sprintf(encoderValueStr, "%lu", encoderValue);
+			ssd1306_SetCursor(0,0);
+			ssd1306_Fill(Black);
+			ssd1306_WriteString(encoderValueStr, Font_16x26, White);
+			ssd1306_UpdateScreen();
+
 		}
 
 		if(buffer_offset == BUFFER_OFFSET_FULL)
@@ -189,4 +221,108 @@ void WOLFSON_PI_AUDIO_OUT_Error_CallBack(void)
 {
   /* Stop the program with an infinite loop */
   while (1);
+}
+
+/* I2C1 init function */
+ void MX_I2C1_Init(void)
+{
+
+  hi2c1.Instance = I2C1;
+//  hi2c1.Init.ClockSpeed = 100000; // 9 FPS
+//  hi2c1.Init.ClockSpeed = 100000 * 2; // 19 FPS
+  hi2c1.Init.ClockSpeed = 100000 * 4; // 37 FPS
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+	/**I2C1 GPIO Configuration
+	PB8     ------> I2C1_SCL
+	PB9     ------> I2C1_SDA
+	*/
+	GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	__HAL_RCC_I2C1_CLK_ENABLE();
+
+	HAL_I2C_Init(&hi2c1);
+}
+
+ void MX_GPIO_Init(void){
+
+	 GPIO_InitTypeDef GPIO_InitStruct;
+
+	 __HAL_RCC_GPIOB_CLK_ENABLE();
+
+	  /*Configure GPIO pins : PB4 PB5 */
+	  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+	  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+	  GPIO_InitStruct.Pull = GPIO_PULLUP;
+	  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	  /*Configure GPIO pin : PB7 */
+	  GPIO_InitStruct.Pin = GPIO_PIN_7;
+	  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+	  GPIO_InitStruct.Pull = GPIO_PULLUP;
+	  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	  /* EXTI interrupt init*/
+	  HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+	  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+ }
+
+
+
+
+ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if((GPIO_Pin == GPIO_PIN_4) || (GPIO_Pin == GPIO_PIN_5)){
+		if(HAL_GetTick() > (encoderLastTick + encoderDebounceTime)){
+			GPIO_PinState encoderB = GPIO_PIN_RESET;
+
+			encoderNowVal = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4);
+			encoderB = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5);
+
+			if(encoderNowVal == GPIO_PIN_SET){
+				BSP_LED_On(LED3);
+			} else {
+				BSP_LED_Off(LED3);
+			}
+
+			if(encoderB == GPIO_PIN_SET){
+				BSP_LED_On(LED4);
+			} else {
+				BSP_LED_Off(LED4);
+			}
+
+			if(encoderNowVal != encoderLastVal){
+				if(encoderB != encoderNowVal){
+					encoderValue++;
+				} else {
+					if(encoderValue != 0)
+						encoderValue--;
+				}
+			}
+
+
+			encoderLastTick = HAL_GetTick();
+			encoderLastVal = encoderNowVal;
+		}
+
+	}
+
+	else if(GPIO_Pin == GPIO_PIN_7)
+		BSP_LED_Toggle(LED5);
 }
