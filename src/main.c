@@ -5,8 +5,8 @@
 #include <wolfson_pi_audio.h>
 #include <diag/Trace.h>
 #include <dwt.h>
+#include <effect_echo.h>
 #include "filter.h"
-#include "effect_delay.h"
 #include "effect_vibrato.h"
 #include "effect_flanger.h"
 #include "effect_tremolo.h"
@@ -15,6 +15,8 @@
 #include <string.h>
 #include "ssd1306.h"
 #include "ssd1306_tests.h"
+#include "menu.h"
+
 //#include "math_helper.h"
 
 
@@ -39,14 +41,14 @@ GPIO_PinState encoderLastVal = GPIO_PIN_RESET;
 GPIO_PinState encoderNowVal = GPIO_PIN_RESET;
 uint32_t encoderValue = 0;
 const uint32_t encoderDebounceTime = 5; // in ms
-uint32_t encoderLastTick;
+const uint32_t pushButtonDebounceTime = 500;
 
+uint32_t encoderLastTick;
+uint32_t pushButtonLastTick;
 char encoderValueStr[10];
 
 
-//Declare State buffer
-#define DELAY_STATE_SIZE 10000
-static float32_t State[DELAY_STATE_SIZE];
+
 
 void MX_I2C1_Init(void);
 void MX_GPIO_Init(void);
@@ -102,6 +104,8 @@ int main(int argc, char* argv[])
 
 	ssd1306_Init();
 
+	effect_init();
+
 	//ssd1306_TestAll();
 
 	BSP_LED_Init(LED3);
@@ -114,8 +118,7 @@ int main(int argc, char* argv[])
 	inputF32 = &inputF32Buffer[0];
 	outputF32 = &outputF32Buffer[0];
 
-	effect_instance_flanger Effect;
-	effect_flanger_init(&Effect,11, 1, 10, State, DELAY_STATE_SIZE);
+
 
 	trace_printf("End of initialization.\n");
 
@@ -132,7 +135,7 @@ int main(int argc, char* argv[])
 				}
 			}
 
-			effect_flanger(&Effect, inputF32, outputF32, BLOCK_SIZE);
+			effect(inputF32, outputF32, BLOCK_SIZE);
 			for(i=0, k=0; i<(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2); i++) {
 				if(i%2)	{
 					TxBuffer[i] = (int16_t)(outputF32Buffer[k]*32768);//back to 1.15
@@ -146,14 +149,7 @@ int main(int argc, char* argv[])
 
 			buffer_offset = BUFFER_OFFSET_NONE;
 
-			effect_flanger_set_delay(&Effect, encoderValue);
-
-			sprintf(encoderValueStr, "%lu", encoderValue);
-			ssd1306_SetCursor(0,0);
-			ssd1306_Fill(Black);
-			ssd1306_WriteString(encoderValueStr, Font_16x26, White);
-			ssd1306_UpdateScreen();
-
+			updateScreen();
 		}
 
 		if(buffer_offset == BUFFER_OFFSET_FULL)
@@ -171,7 +167,7 @@ int main(int argc, char* argv[])
 				}
 			}
 
-			effect_flanger(&Effect, inputF32, outputF32, BLOCK_SIZE);
+			effect(inputF32, outputF32, BLOCK_SIZE);
 			for(i=(WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE/2), k=0; i<WOLFSON_PI_AUDIO_TXRX_BUFFER_SIZE; i++) {
 				if(i%2)	{
 					TxBuffer[i] = (int16_t)(outputF32Buffer[k]*32768.0);//back to 1.15
@@ -309,10 +305,9 @@ void WOLFSON_PI_AUDIO_OUT_Error_CallBack(void)
 
 			if(encoderNowVal != encoderLastVal){
 				if(encoderB != encoderNowVal){
-					encoderValue++;
+					menuValueAdd();
 				} else {
-					if(encoderValue != 0)
-						encoderValue--;
+					menuValueSub();
 				}
 			}
 
@@ -324,5 +319,10 @@ void WOLFSON_PI_AUDIO_OUT_Error_CallBack(void)
 	}
 
 	else if(GPIO_Pin == GPIO_PIN_7)
-		BSP_LED_Toggle(LED5);
+		if(HAL_GetTick() > (pushButtonLastTick + pushButtonDebounceTime)){
+			menuValueEnter();
+			pushButtonLastTick = HAL_GetTick();
+			BSP_LED_Toggle(LED5);
+		}
+
 }

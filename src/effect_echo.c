@@ -5,12 +5,12 @@
  *      Author: Cleissom
  */
 
-#include "effect_delay.h"
+#include <effect_echo.h>
 
-void effect_delay_init(
-	effect_instance_delay * S,
+void effect_echo_init(
+	effect_instance_echo * S,
 	float32_t delay,
-	float32_t alpha,
+	float32_t gain,
 	float32_t * pState,
 	uint16_t pStateSize)
 {
@@ -24,14 +24,14 @@ void effect_delay_init(
 		S->delay = delay;
 
 	S->head = 0;
-	S->aheadIndex = S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U));
+	S->aheadIndex = (S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U))) + 1;
 
-	S->alpha = alpha;
+	S->gain = gain;
 	S->pState = pState;
 }
 
-void effect_delay(
-	effect_instance_delay * S,
+void effect_echo(
+	effect_instance_echo * S,
 	float32_t * pSrc,
 	float32_t * pDst,
 	uint16_t blockSize)
@@ -39,7 +39,7 @@ void effect_delay(
 	uint16_t i;
 
 	for(i = 0; i<blockSize; i++){
-		pDst[i] = pSrc[i] + S->alpha * (S->pState[(S->head + S->aheadIndex) % (S->pStateSize)]);
+		pDst[i] = pSrc[i] + S->gain * (S->pState[(S->head + S->aheadIndex) % (S->pStateSize)]);
 		S->pState[(S->head)++] = pSrc[i];
 
 		if (S->head >= S->pStateSize)
@@ -47,8 +47,8 @@ void effect_delay(
 	}
 }
 
-void effect_delay_set_delay(
-		effect_instance_delay * S,
+void effect_echo_set_delay(
+		effect_instance_echo * S,
 		float32_t delay)
 {
 	float32_t delayMax = (float32_t)((S->pStateSize-1) * 1000) / SAMPLING_FREQUENCY;
@@ -61,9 +61,21 @@ void effect_delay_set_delay(
 	S->aheadIndex = S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U));
 }
 
-void effect_delay_set_alpha(
-		effect_instance_delay * S,
-		float32_t alpha)
+float32_t effect_echo_get_delay(
+		effect_instance_echo * S)
 {
-	S->alpha = alpha;
+	return S->delay;
+}
+
+void effect_echo_set_gain(
+		effect_instance_echo * S,
+		float32_t gain)
+{
+	S->gain = gain;
+}
+
+float32_t effect_echo_get_gain(
+		effect_instance_echo * S)
+{
+	return S->gain;
 }

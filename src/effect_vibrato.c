@@ -10,7 +10,7 @@
 void effect_vibrato_init(
 	effect_instance_vibrato * S,
 	float32_t delay,
-	float32_t alpha,
+	float32_t gain,
 	float32_t frequency,
 	float32_t * pState,
 	uint16_t pStateSize)
@@ -27,7 +27,7 @@ void effect_vibrato_init(
 	S->head = 0;
 	S->cosineIndex = 0;
 
-	S->alpha = alpha;
+	S->gain = gain;
 	S->pState = pState;
 
 	S->vibratoDigitalFrequency = 2 * PI * (frequency / ((float32_t)SAMPLING_FREQUENCY));
@@ -54,7 +54,7 @@ void effect_vibrato(
 		x2 = (S->pState[(S->head + (aheadIndex-2)) % (S->pStateSize)]);
 		frac = ((uint32_t)aheadIndex) - aheadIndex;
 		interpolation = x1*frac + x2*(1-frac);
-		pDst[i] = S->alpha * interpolation;
+		pDst[i] = S->gain * interpolation;
 
 		S->pState[(S->head)++] = pSrc[i];
 
@@ -78,9 +78,34 @@ void effect_vibrato_set_delay(
 		S->delay = delay;
 }
 
-void effect_vibrato_set_alpha(
+void effect_vibrato_set_frequency(
 		effect_instance_vibrato * S,
-		float32_t alpha)
+		float32_t frequency)
 {
-	S->alpha = alpha;
+	S->vibratoDigitalFrequency = 2 * PI * (frequency / ((float32_t)SAMPLING_FREQUENCY));
+}
+
+void effect_vibrato_set_gain(
+		effect_instance_vibrato * S,
+		float32_t gain)
+{
+	S->gain = gain;
+}
+
+float32_t effect_vibrato_get_delay(
+		effect_instance_vibrato * S)
+{
+	return S->delay;
+}
+
+float32_t effect_vibrato_get_frequency(
+		effect_instance_vibrato * S)
+{
+	return (S->vibratoDigitalFrequency * (float32_t)SAMPLING_FREQUENCY)/(2 * PI );
+}
+
+float32_t effect_vibrato_get_gain(
+		effect_instance_vibrato * S)
+{
+	return S->gain;
 }

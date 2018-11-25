@@ -6,38 +6,38 @@
  */
 
 /**
- * @file effect_delay.h
+ * @file effect_echo.h
  * Delay Effect
  */
 
 
-#ifndef EFFECT_DELAY_H_
-#define EFFECT_DELAY_H_
+#ifndef EFFECT_ECHO_H_
+#define EFFECT_ECHO_H_
 
 
 #include <arm_math.h>
 #include "effect_common.h"
 
 /**
- * @brief Instance structure for the Delay Effect.
+ * @brief Instance structure for the Echo Effect.
  */
 
 typedef struct {
 	float32_t delay;     	/**< delay of filter in ms. */
-	float32_t alpha;		/**< Scaling factor applied to the delayed signal.*/
+	float32_t gain;			/**< Scaling factor applied to the delayed signal.*/
 	float32_t *pState;    	/**< points to the state variable array. The array is of length numTaps+blockSize-1. */
 	uint16_t pStateSize;    /**< size of pState. */
 	uint16_t head;			/**< position on state buffer. */
 	uint16_t aheadIndex;	/**< Number of indexes that the tail is, relative to head. */
-} effect_instance_delay;
+} effect_instance_echo;
 
 
 /**
- * @brief Initialization function for the Delay Effect.
+ * @brief Initialization function for the Echo Effect.
  *
  * @param *S points to an instance of the delay filter structure.
  * @param delay Number of filter delay in ms.
- * @param alpha Scaling factor applied to the delayed signal.
+ * @param gain Scaling factor applied to the delayed signal.
  * @param *pState ponts to the state buffer.
  * @param pStateSize Size of the state buffer.
  * @return none.
@@ -53,7 +53,7 @@ typedef struct {
  *  </pre>
  */
 
-void effect_delay_init(effect_instance_delay *S, float32_t delay, float32_t alpha, float32_t *pState, uint16_t pStateSize);
+void effect_echo_init(effect_instance_echo *S, float32_t delay, float32_t gain, float32_t *pState, uint16_t pStateSize);
 
 /**
  * @brief Processing function for Delay Effect.
@@ -62,9 +62,11 @@ void effect_delay_init(effect_instance_delay *S, float32_t delay, float32_t alph
  * @param *pDst points to the destination buffer.
  * @param blockSize size of the block to be processed. Same size of the source/destination buffer.
  */
-void effect_delay(effect_instance_delay * S, float32_t * pSrc, float32_t * pDst, uint16_t blockSize);
-void effect_delay_set_delay(effect_instance_delay * S,  float32_t delay);
-void effect_delay_set_alpha(effect_instance_delay * S,  float32_t alpha);
+void effect_echo(effect_instance_echo * S, float32_t * pSrc, float32_t * pDst, uint16_t blockSize);
+void effect_echo_set_delay(effect_instance_echo * S,  float32_t delay);
+float32_t effect_echo_get_delay(effect_instance_echo * S);
+void effect_echo_set_gain(effect_instance_echo * S,  float32_t gain);
+float32_t effect_echo_get_gain(effect_instance_echo * S);
 
-#endif /* EFFECT_DELAY_H_ */
+#endif /* EFFECT_ECHO_H_ */
 
