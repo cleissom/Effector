@@ -9,12 +9,12 @@
 
 void effect_tremolo_init(
 	effect_instance_tremolo * S,
-	float32_t alpha,
+	float32_t gain,
 	float32_t frequency)
 {
 	S->cosineIndex = 0;
 
-	S->alpha = alpha;
+	S->gain = gain;
 
 	S->tremoloDigitalFrequency = 2 * PI * (frequency / ((float32_t)SAMPLING_FREQUENCY));
 }
@@ -29,7 +29,7 @@ void effect_tremolo(
 	float32_t tremoloGain;
 
 	for(i = 0; i<blockSize; i++){
-		tremoloGain = (1 + S->alpha * arm_cos_f32(S->tremoloDigitalFrequency * S->cosineIndex++));
+		tremoloGain = (1 + S->gain * arm_cos_f32(S->tremoloDigitalFrequency * S->cosineIndex++));
 
 		pDst[i] = tremoloGain * pSrc[i];
 
@@ -38,11 +38,17 @@ void effect_tremolo(
 	}
 }
 
-void effect_tremolo_set_alpha(
+void effect_tremolo_set_gain(
 		effect_instance_tremolo * S,
-		float32_t alpha)
+		float32_t gain)
 {
-	S->alpha = alpha;
+	S->gain = gain;
+}
+
+float32_t effect_tremolo_get_gain(
+		effect_instance_tremolo * S)
+{
+	return S->gain;
 }
 
 void effect_tremolo_set_frequency(
@@ -50,4 +56,10 @@ void effect_tremolo_set_frequency(
 		float32_t frequency)
 {
 	S->tremoloDigitalFrequency = 2 * PI * (frequency / ((float32_t)SAMPLING_FREQUENCY));
+}
+
+float32_t effect_tremolo_get_frequency(
+		effect_instance_tremolo * S)
+{
+	return (S->tremoloDigitalFrequency * (float32_t)SAMPLING_FREQUENCY)/(2 * PI );
 }

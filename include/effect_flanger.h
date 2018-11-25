@@ -30,6 +30,10 @@ void effect_flanger_init( effect_instance_flanger * S, float32_t delay, float32_
 void effect_flanger(effect_instance_flanger * S, float32_t * pSrc, float32_t * pDst, uint16_t blockSize);
 
 void effect_flanger_set_delay(effect_instance_flanger * S, float32_t delay);
+float32_t effect_flanger_get_delay(effect_instance_flanger * S);
+void effect_flanger_set_frequency(effect_instance_flanger * S, float32_t frequency);
+float32_t effect_flanger_get_frequency(effect_instance_flanger * S);
 void effect_flanger_set_gain(effect_instance_flanger * S, float32_t gain);
+float32_t effect_flanger_get_gain(effect_instance_flanger * S);
 
 #endif /* EFFECT_FLANGER_H_ */

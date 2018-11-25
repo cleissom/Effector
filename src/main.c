@@ -106,8 +106,6 @@ int main(int argc, char* argv[])
 
 	effect_init();
 
-	//ssd1306_TestAll();
-
 	BSP_LED_Init(LED3);
 	BSP_LED_Init(LED4);
 	BSP_LED_Init(LED5);

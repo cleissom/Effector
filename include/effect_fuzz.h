@@ -23,6 +23,8 @@ typedef struct {
 void effect_fuzz_init( effect_instance_fuzz * S, float32_t gain, float32_t mix);
 void effect_fuzz(effect_instance_fuzz * S, float32_t * pSrc, float32_t * pDst, uint16_t blockSize);
 void effect_fuzz_set_gain(effect_instance_fuzz * S, float32_t gain);
+float32_t effect_fuzz_get_gain(effect_instance_fuzz * S);
 void effect_fuzz_set_mix(effect_instance_fuzz * S, float32_t mix);
+float32_t effect_fuzz_get_mix(effect_instance_fuzz * S);
 
 #endif /* EFFECT_FUZZ_H_ */

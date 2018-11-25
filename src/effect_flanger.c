@@ -79,9 +79,34 @@ void effect_flanger_set_delay(
 		S->delay = delay;
 }
 
+float32_t effect_flanger_get_delay(
+		effect_instance_flanger * S)
+{
+	return S->delay;
+}
+
+void effect_flanger_set_frequency(
+		effect_instance_flanger * S,
+		float32_t frequency)
+{
+	S->flangerDigitalFrequency = 2 * PI * (frequency / ((float32_t)SAMPLING_FREQUENCY));
+}
+
+float32_t effect_flanger_get_frequency(
+		effect_instance_flanger * S)
+{
+	return (S->flangerDigitalFrequency * (float32_t)SAMPLING_FREQUENCY)/(2 * PI );
+}
+
 void effect_flanger_set_gain(
 		effect_instance_flanger * S,
 		float32_t gain)
 {
 	S->gain = gain;
+}
+
+float32_t effect_flanger_get_gain(
+		effect_instance_flanger * S)
+{
+	return S->gain;
 }
