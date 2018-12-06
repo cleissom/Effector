@@ -24,7 +24,7 @@ void effect_echo_init(
 		S->delay = delay;
 
 	S->head = 0;
-	S->aheadIndex = (S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U))) + 1;
+	S->aheadIndex = (S->pStateSize - (uint16_t)(S->delay * (SAMPLING_FREQUENCY/1000U))) -1;
 
 	S->gain = gain;
 	S->pState = pState;

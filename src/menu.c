@@ -38,8 +38,9 @@ char echoStr[]		= "Echo";
 char vibratoStr[] 	= "Vibrato";
 char flangerStr[]	= "Flanger";
 char tremoloStr[]	= "Tremolo";
-char fuzzStr[]		= "Fuzz";
 char overdriveStr[]	= "Overdrive";
+char msStr[]		= "ms";
+char hzStr[]		= "Hz";
 
 menu_state_enum menu_state = MENU_HOME;
 
@@ -104,10 +105,6 @@ void effect(float32_t * pSrc, float32_t * pDst, uint16_t blockSize){
 		effect_tremolo(&STremolo, pSrc, pDst, blockSize);
 		break;
 
-	case FUZZ:
-		effect_fuzz(&SFuzz, pSrc, pDst, blockSize);
-		break;
-
 	case OVERDRIVE:
 		effect_overdrive(pSrc, pDst, blockSize);
 		break;
@@ -118,13 +115,17 @@ void effect(float32_t * pSrc, float32_t * pDst, uint16_t blockSize){
 	}
 }
 
-void menuPrintLines(char* firstLine, char* secondLine){
+void menuPrintLines(char* firstLine, char* secondLine, char* unity){
 	ssd1306_SetCursor(0,0);
 	ssd1306_Fill(Black);
 	ssd1306_WriteString(firstLine, Font_11x18, White);
 	ssd1306_WriteChar(':', Font_11x18, White);
 	ssd1306_SetCursor(0,30);
 	ssd1306_WriteString(secondLine, Font_16x26, White);
+	if(unity != NULL){
+		ssd1306_SetCursor(70,30);
+		ssd1306_WriteString(unity, Font_16x26, White);
+	}
 	ssd1306_UpdateScreen();
 }
 
@@ -141,43 +142,37 @@ void updateScreen(void){
 	switch(menu_state){
 	case MENU_HOME:
 
-		if(Value > 5){
-			Value = 5;
+		if(Value > 4){
+			Value = 4;
 		}
 
 		switch(Value){
 		case 0:
-			menuPrintLines(effectStr, echoStr);
+			menuPrintLines(effectStr, echoStr, NULL);
 			if(enter)
 				menuEnter(MENU_ECHO, ECHO, 0);
 			break;
 
 		case 1:
-			menuPrintLines(effectStr, vibratoStr);
+			menuPrintLines(effectStr, vibratoStr, NULL);
 			if(enter)
 				menuEnter(MENU_VIBRATO, VIBRATO, 0);
 			break;
 
 		case 2:
-			menuPrintLines(effectStr, flangerStr);
+			menuPrintLines(effectStr, flangerStr, NULL);
 			if(enter)
 				menuEnter(MENU_FLANGER, FLANGER, 0);
 			break;
 
 		case 3:
-			menuPrintLines(effectStr, tremoloStr);
+			menuPrintLines(effectStr, tremoloStr, NULL);
 			if(enter)
 				menuEnter(MENU_TREMOLO, TREMOLO, 0);
 			break;
 
 		case 4:
-			menuPrintLines(effectStr, fuzzStr);
-			if(enter)
-				menuEnter(MENU_FUZZ, FUZZ, 0);
-			break;
-
-		case 5:
-			menuPrintLines(effectStr, overdriveStr);
+			menuPrintLines(effectStr, overdriveStr, NULL);
 			if(enter)
 				menuEnter(MENU_OVERDRIVE, OVERDRIVE, 0);
 			break;
@@ -194,20 +189,20 @@ void updateScreen(void){
 			}
 			switch(Value){
 			case 0:
-				menuPrintLines(echoStr, delayStr);
+				menuPrintLines(echoStr, delayStr, NULL);
 				if(enter)
 					menuEnter(MENU_ECHO_DELAY, ECHO, effect_echo_get_delay(&SEcho));
 
 				break;
 
 			case 1:
-				menuPrintLines(echoStr, gainStr);
+				menuPrintLines(echoStr, gainStr, NULL);
 				if(enter)
 					menuEnter(MENU_ECHO_GAIN, ECHO, 10 * effect_echo_get_gain(&SEcho));
 				break;
 
 			case 2:
-				menuPrintLines(echoStr, backStr);
+				menuPrintLines(echoStr, backStr, NULL);
 				if(enter)
 					menuEnter(MENU_HOME, NONE, 0);
 				break;
@@ -217,7 +212,7 @@ void updateScreen(void){
 		case MENU_ECHO_DELAY:
 			effect_echo_set_delay(&SEcho, Value);
 			sprintf(ValueStr, "%lu", Value);
-			menuPrintLines(echoStr, ValueStr);
+			menuPrintLines(delayStr, ValueStr, msStr);
 			if(enter)
 				menuEnter(MENU_ECHO, ECHO, 0);
 			break;
@@ -225,7 +220,7 @@ void updateScreen(void){
 		case MENU_ECHO_GAIN:
 			effect_echo_set_gain(&SEcho, ((float32_t)Value)/10.0);
 			sprintf(ValueStr, "%lu", Value);
-			menuPrintLines(echoStr, ValueStr);
+			menuPrintLines(gainStr, ValueStr, NULL);
 			if(enter)
 				menuEnter(MENU_ECHO, ECHO, 1);
 			break;
@@ -240,26 +235,26 @@ void updateScreen(void){
 			}
 			switch(Value){
 			case 0:
-				menuPrintLines(vibratoStr, delayStr);
+				menuPrintLines(vibratoStr, delayStr, NULL);
 				if(enter)
 					menuEnter(MENU_VIBRATO_DELAY, VIBRATO, effect_vibrato_get_delay(&SVibrato));
 
 				break;
 
 			case 1:
-				menuPrintLines(vibratoStr, frequencyStr);
+				menuPrintLines(vibratoStr, frequencyStr, NULL);
 				if(enter)
 					menuEnter(MENU_VIBRATO_FREQUENCY, VIBRATO, effect_vibrato_get_frequency(&SVibrato));
 				break;
 
 			case 2:
-				menuPrintLines(vibratoStr, gainStr);
+				menuPrintLines(vibratoStr, gainStr, NULL);
 				if(enter)
 					menuEnter(MENU_VIBRATO_GAIN, VIBRATO, 10 * effect_vibrato_get_gain(&SVibrato));
 				break;
 
 			case 3:
-				menuPrintLines(vibratoStr, backStr);
+				menuPrintLines(vibratoStr, backStr, NULL);
 				if(enter)
 					menuEnter(MENU_HOME, NONE, 1);
 				break;
@@ -269,7 +264,7 @@ void updateScreen(void){
 			case MENU_VIBRATO_DELAY:
 				effect_vibrato_set_delay(&SVibrato, Value);
 				sprintf(ValueStr, "%lu", Value);
-				menuPrintLines(delayStr, ValueStr);
+				menuPrintLines(delayStr, ValueStr, msStr);
 				if(enter)
 					menuEnter(MENU_VIBRATO, VIBRATO, 0);
 				break;
@@ -277,7 +272,7 @@ void updateScreen(void){
 			case MENU_VIBRATO_FREQUENCY:
 				effect_vibrato_set_frequency(&SVibrato, Value);
 				sprintf(ValueStr, "%lu", Value);
-				menuPrintLines(frequencyStr, ValueStr);
+				menuPrintLines(frequencyStr, ValueStr, hzStr);
 				if(enter)
 					menuEnter(MENU_VIBRATO, VIBRATO, 1);
 				break;
@@ -285,7 +280,7 @@ void updateScreen(void){
 			case MENU_VIBRATO_GAIN:
 				effect_vibrato_set_gain(&SVibrato, ((float32_t)Value)/10.0);
 				sprintf(ValueStr, "%lu", Value);
-				menuPrintLines(gainStr, ValueStr);
+				menuPrintLines(gainStr, ValueStr, NULL);
 				if(enter)
 					menuEnter(MENU_VIBRATO, VIBRATO, 2);
 				break;
@@ -302,26 +297,26 @@ void updateScreen(void){
 				}
 				switch(Value){
 				case 0:
-					menuPrintLines(flangerStr, delayStr);
+					menuPrintLines(flangerStr, delayStr, NULL);
 					if(enter)
 						menuEnter(MENU_FLANGER_DELAY, FLANGER, effect_flanger_get_delay(&SFlanger));
 
 					break;
 
 				case 1:
-					menuPrintLines(flangerStr, frequencyStr);
+					menuPrintLines(flangerStr, frequencyStr, NULL);
 					if(enter)
 						menuEnter(MENU_FLANGER_FREQUENCY, FLANGER, effect_flanger_get_frequency(&SFlanger));
 					break;
 
 				case 2:
-					menuPrintLines(flangerStr, gainStr);
+					menuPrintLines(flangerStr, gainStr, NULL);
 					if(enter)
 						menuEnter(MENU_FLANGER_GAIN, FLANGER, 10 * effect_flanger_get_gain(&SFlanger));
 					break;
 
 				case 3:
-					menuPrintLines(flangerStr, backStr);
+					menuPrintLines(flangerStr, backStr, NULL);
 					if(enter)
 						menuEnter(MENU_HOME, NONE, 2);
 					break;
@@ -331,7 +326,7 @@ void updateScreen(void){
 				case MENU_FLANGER_DELAY:
 					effect_flanger_set_delay(&SFlanger, Value);
 					sprintf(ValueStr, "%lu", Value);
-					menuPrintLines(delayStr, ValueStr);
+					menuPrintLines(delayStr, ValueStr, msStr);
 					if(enter)
 						menuEnter(MENU_FLANGER, FLANGER, 0);
 					break;
@@ -339,7 +334,7 @@ void updateScreen(void){
 				case MENU_FLANGER_FREQUENCY:
 					effect_flanger_set_frequency(&SFlanger, Value);
 					sprintf(ValueStr, "%lu", Value);
-					menuPrintLines(frequencyStr, ValueStr);
+					menuPrintLines(frequencyStr, ValueStr, hzStr);
 					if(enter)
 						menuEnter(MENU_FLANGER, FLANGER, 1);
 					break;
@@ -347,7 +342,7 @@ void updateScreen(void){
 				case MENU_FLANGER_GAIN:
 					effect_flanger_set_gain(&SFlanger, ((float32_t)Value)/10.0);
 					sprintf(ValueStr, "%lu", Value);
-					menuPrintLines(gainStr, ValueStr);
+					menuPrintLines(gainStr, ValueStr, NULL);
 					if(enter)
 						menuEnter(MENU_FLANGER, FLANGER, 2);
 					break;
@@ -363,19 +358,19 @@ void updateScreen(void){
 					}
 					switch(Value){
 					case 0:
-						menuPrintLines(tremoloStr, frequencyStr);
+						menuPrintLines(tremoloStr, frequencyStr, NULL);
 						if(enter)
 							menuEnter(MENU_TREMOLO_FREQUENCY, TREMOLO, effect_tremolo_get_frequency(&STremolo));
 						break;
 
 					case 1:
-						menuPrintLines(tremoloStr, gainStr);
+						menuPrintLines(tremoloStr, gainStr, NULL);
 						if(enter)
 							menuEnter(MENU_TREMOLO_GAIN, TREMOLO, 10 * effect_tremolo_get_gain(&STremolo));
 						break;
 
 					case 2:
-						menuPrintLines(tremoloStr, backStr);
+						menuPrintLines(tremoloStr, backStr, NULL);
 						if(enter)
 							menuEnter(MENU_HOME, NONE, 3);
 						break;
@@ -385,7 +380,7 @@ void updateScreen(void){
 					case MENU_TREMOLO_FREQUENCY:
 						effect_tremolo_set_frequency(&STremolo, Value);
 						sprintf(ValueStr, "%lu", Value);
-						menuPrintLines(frequencyStr, ValueStr);
+						menuPrintLines(frequencyStr, ValueStr, hzStr);
 						if(enter)
 							menuEnter(MENU_TREMOLO, TREMOLO, 0);
 						break;
@@ -393,58 +388,10 @@ void updateScreen(void){
 					case MENU_TREMOLO_GAIN:
 						effect_tremolo_set_gain(&STremolo, ((float32_t)Value)/10.0);
 						sprintf(ValueStr, "%lu", Value);
-						menuPrintLines(gainStr, ValueStr);
+						menuPrintLines(gainStr, ValueStr, NULL);
 						if(enter)
 							menuEnter(MENU_TREMOLO, TREMOLO, 1);
 						break;
-
-
-
-
-					case MENU_FUZZ:
-
-						if(Value > 2){
-							Value = 2;
-						}
-						switch(Value){
-						case 0:
-							menuPrintLines(fuzzStr, gainStr);
-							if(enter)
-								menuEnter(MENU_FUZZ_GAIN, FUZZ, 10 * effect_fuzz_get_gain(&SFuzz));
-							break;
-
-						case 1:
-							menuPrintLines(fuzzStr, mixStr);
-							if(enter)
-								menuEnter(MENU_FUZZ_MIX, FUZZ, 10 * effect_fuzz_get_mix(&SFuzz));
-							break;
-
-						case 2:
-							menuPrintLines(fuzzStr, backStr);
-							if(enter)
-								menuEnter(MENU_HOME, NONE, 4);
-							break;
-						}
-						break;
-
-						case MENU_FUZZ_GAIN:
-							effect_fuzz_set_gain(&SFuzz, ((float32_t)Value)/10.0);
-							sprintf(ValueStr, "%lu", Value);
-							menuPrintLines(gainStr, ValueStr);
-							if(enter)
-								menuEnter(MENU_FUZZ, FUZZ, 0);
-							break;
-
-						case MENU_FUZZ_MIX:
-							effect_fuzz_set_mix(&SFuzz, ((float32_t)Value)/10.0);
-							sprintf(ValueStr, "%lu", Value);
-							menuPrintLines(mixStr, ValueStr);
-							if(enter)
-								menuEnter(MENU_FUZZ, FUZZ, 1);
-							break;
-
-
-
 
 
 						case MENU_OVERDRIVE:
@@ -454,7 +401,7 @@ void updateScreen(void){
 							}
 							switch(Value){
 							case 0:
-								menuPrintLines(overdriveStr, backStr);
+								menuPrintLines(overdriveStr, backStr, NULL);
 								if(enter)
 									menuEnter(MENU_HOME, NONE, 5);
 								break;

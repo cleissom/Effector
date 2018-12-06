@@ -55,7 +55,7 @@ void effect_flanger(
 		x2 = (S->pState[(S->head + (aheadIndex-2)) % (S->pStateSize)]);
 		frac = ((uint32_t)aheadIndex) - aheadIndex;
 		interpolation = x1*frac + x2*(1-frac);
-		pDst[i] = (S->gain * interpolation) + pSrc[i];
+		pDst[i] = (S->gain * interpolation) ;
 
 		S->pState[(S->head)++] = pSrc[i];
 

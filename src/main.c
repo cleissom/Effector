@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 
 
 
-	trace_printf("End of initialization.\n");
+	//trace_printf("End of initialization.\n");
 
 	while (1) {
 		if(buffer_offset == BUFFER_OFFSET_HALF)

@@ -17,7 +17,6 @@ typedef enum {
 	VIBRATO,
 	FLANGER,
 	TREMOLO,
-	FUZZ,
 	OVERDRIVE
 } filter_type_enum;
 
@@ -38,9 +37,6 @@ typedef enum {
 	MENU_TREMOLO,
 	MENU_TREMOLO_FREQUENCY,
 	MENU_TREMOLO_GAIN,
-	MENU_FUZZ,
-	MENU_FUZZ_GAIN,
-	MENU_FUZZ_MIX,
 	MENU_OVERDRIVE
 } menu_state_enum;
 

@@ -16,7 +16,6 @@ void effect_fuzz_init(
 	S->mix = mix;
 }
 
-#define M_E 2.71828
 
 void effect_fuzz(
 	effect_instance_fuzz * S,
